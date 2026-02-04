@@ -298,12 +298,12 @@ function RootLayoutInner() {
 
   return (
     <NavThemeProvider value={currentTheme}>
-      <Stack 
+      <Stack
         // Force the stack to start at the route we calculated
-        initialRouteName={initialRoute} 
-        screenOptions={{ 
-          headerShown: false, 
-          contentStyle: { backgroundColor: currentTheme.colors.background } 
+        initialRouteName={initialRoute}
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: currentTheme.colors.background }
         }}
       >
         {/* Define all screens normally. initialRouteName handles the rest */}
@@ -311,6 +311,13 @@ function RootLayoutInner() {
         <Stack.Screen name="login" />
         <Stack.Screen name="signup" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen
+          name="(chat)"
+          options={{
+            headerTitle: 'Chat',
+            presentation: 'card', // Or 'modal' for a different look
+          }}
+        />
       </Stack>
       <StatusBar style={isDarkMode ? 'light' : 'dark'} />
     </NavThemeProvider>
