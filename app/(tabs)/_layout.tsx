@@ -1,14 +1,14 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { View, Text } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Text, View } from 'react-native';
 
 // Install if not already: npx expo install @expo/vector-icons
 
 // Simple React Native icon component
 const TabIcon = ({ name, color }: { name: string; color: string }) => {
   let iconName: keyof typeof Ionicons.glyphMap;
-  
+
   switch (name) {
     case 'house.fill':
       iconName = 'home';
@@ -32,7 +32,7 @@ const TabIcon = ({ name, color }: { name: string; color: string }) => {
 // Or if you want to use emojis instead of icons
 const EmojiTabIcon = ({ name, color }: { name: string; color: string }) => {
   let emoji = '❓';
-  
+
   switch (name) {
     case 'house.fill':
       emoji = '🏠';
@@ -45,7 +45,12 @@ const EmojiTabIcon = ({ name, color }: { name: string; color: string }) => {
       break;
     case 'gearshape.fill':
       emoji = '⚙️';
+      break; // <- missing in your code
+    case 'photo.fill':
+      emoji = '🖼️'; // photo emoji
       break;
+    default:
+      emoji = '❓'; // optional: default emoji if no match
   }
 
   return (
@@ -58,7 +63,7 @@ const EmojiTabIcon = ({ name, color }: { name: string; color: string }) => {
 export default function TabLayout() {
   // For now, use a simple theme - remove useTheme if causing issues
   const isDarkMode = false; // Temporary
-  
+
   return (
     <Tabs
       screenOptions={{
@@ -81,6 +86,16 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="photo" // route name
+        options={{
+          title: 'Photos',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="image" size={size} color={color} /> // make sure the icon exists in Ionicons
+          ),
+        }}
+      />
+
+      <Tabs.Screen
         name="chat"
         options={{
           title: 'Chat',
@@ -89,7 +104,7 @@ export default function TabLayout() {
           ),
         }}
       />
-       <Tabs.Screen
+      <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
