@@ -15,10 +15,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Href, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from './context/ThemeContext';
+import { useAuth } from './context/AuthContext';
 
 const LoginScreen = () => {
   const router = useRouter();
   const { isDarkMode } = useTheme();
+  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,7 +30,7 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
 
-  
+
     // Check email
     const emailError = !email || !email.includes('@')
     if (emailError) {
@@ -55,9 +57,15 @@ const LoginScreen = () => {
       // Demo validation
       if (email.includes('@')) {
         try {
-          await AsyncStorage.setItem('userToken', 'dummy_token');
-          await AsyncStorage.setItem('userEmail', email);
-          await AsyncStorage.setItem('isLoggedIn', 'true');
+          // Keep any existing profile if present; otherwise create a fallback
+          const existingUserData = await AsyncStorage.getItem('userData');
+          const existingUser = existingUserData ? JSON.parse(existingUserData) : null;
+          await signIn({
+            email,
+            user: existingUser && existingUser.email ? existingUser : undefined,
+            name: existingUser?.name,
+            token: 'dummy_token',
+          });
 
           Alert.alert('Success', 'Logged in successfully!');
           router.replace('/(tabs)'); // Navigate to main app
@@ -160,7 +168,7 @@ const LoginScreen = () => {
 
           {/* FOOTER */}
           <View style={styles.footer}>
-            <Text style={styles.footerText}>
+            <Text style={[styles.footerText, { color: isDarkMode ? '#aaaaaa' : '#666' }]}>
               By signing in, you agree to our{' '}
               <Text style={styles.link}>Terms of Service</Text> and{' '}
               <Text style={styles.link}>Privacy Policy</Text>
@@ -177,7 +185,6 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   keyboardView: {
     flex: 1,
@@ -191,12 +198,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#333',
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
   },
   form: {
     paddingHorizontal: 30,
@@ -206,18 +211,15 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: '#333',
     marginBottom: 8,
     fontWeight: '500',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
     borderRadius: 12,
     paddingHorizontal: 20,
     paddingVertical: 15,
     fontSize: 16,
-    backgroundColor: '#f9f9f9',
   },
   forgotPassword: {
     alignSelf: 'flex-end',

@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useNavigation, useFocusEffect } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useTheme } from '../context/ThemeContext';
 
 interface Message {
     id: string;
@@ -24,6 +25,7 @@ interface Message {
 export default function ChatScreen() {
     const router = useRouter();
     const navigation = useNavigation();
+    const { isDarkMode } = useTheme();
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState<Message[]>([
         { id: '1', text: 'Hello ❤️', sender: 'other' },
@@ -102,9 +104,12 @@ export default function ChatScreen() {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#121212' : '#F2F2F7' }]}>
             {/* Header */}
-            <View style={styles.header}>
+            <View style={[styles.header, {
+                backgroundColor: isDarkMode ? '#1e1e1e' : '#F2F2F7',
+                borderBottomColor: isDarkMode ? '#333' : '#F2F2F7',
+            }]}>
                 <TouchableOpacity
                     onPress={handleBack}
                     style={styles.backButton}
@@ -112,7 +117,7 @@ export default function ChatScreen() {
                 >
                     <Icon name="arrow-back" size={24} color="#007AFF" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>❤️ Chat</Text>
+                <Text style={[styles.headerTitle, { color: isDarkMode ? '#ffffff' : '#000' }]}>❤️ Chat</Text>
                 <View style={styles.backButtonPlaceholder} />
             </View>
 
@@ -135,13 +140,17 @@ export default function ChatScreen() {
                         <View
                             style={[
                                 styles.bubble,
-                                item.sender === 'me' ? styles.myBubble : styles.otherBubble,
+                                item.sender === 'me'
+                                    ? styles.myBubble
+                                    : [styles.otherBubble, { backgroundColor: isDarkMode ? '#1e1e1e' : 'white' }],
                             ]}
                         >
                             <Text
                                 style={[
                                     styles.text,
-                                    item.sender === 'me' && { color: 'white' },
+                                    item.sender === 'me'
+                                        ? { color: 'white' }
+                                        : { color: isDarkMode ? '#ffffff' : '#000' },
                                 ]}
                             >
                                 {item.text}
@@ -151,12 +160,19 @@ export default function ChatScreen() {
                 />
 
                 {/* Input */}
-                <View style={styles.inputRow}>
+                <View style={[styles.inputRow, {
+                    backgroundColor: isDarkMode ? '#1e1e1e' : 'white',
+                    borderTopColor: isDarkMode ? '#333' : '#e5e5ea',
+                }]}>
                     <TextInput
                         value={message}
                         onChangeText={setMessage}
                         placeholder="Message"
-                        style={styles.input}
+                        placeholderTextColor={isDarkMode ? '#666' : '#999'}
+                        style={[styles.input, {
+                            backgroundColor: isDarkMode ? '#121212' : '#f2f2f7',
+                            color: isDarkMode ? '#ffffff' : '#000',
+                        }]}
                         multiline
                         blurOnSubmit={false}   // ✅ prevent keyboard collapse
                         onSubmitEditing={sendMessage} // optional
@@ -174,16 +190,13 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F2F2F7',
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: 16,
-        backgroundColor: '#F2F2F7',
         borderBottomWidth: 1,
-        borderColor: '#F2F2F7',
     },
     backButton: {
         padding: 4,
@@ -211,23 +224,18 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-end',
     },
     otherBubble: {
-        backgroundColor: 'white',
         alignSelf: 'flex-start',
     },
     text: {
         fontSize: 16,
-        color: '#000',
     },
     inputRow: {
         flexDirection: 'row',
         padding: 10,
-        backgroundColor: 'white',
         borderTopWidth: 1,
-        borderColor: '#e5e5ea',
     },
     input: {
         flex: 1,
-        backgroundColor: '#f2f2f7',
         borderRadius: 20,
         paddingHorizontal: 14,
         paddingVertical: 8,

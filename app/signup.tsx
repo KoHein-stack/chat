@@ -14,10 +14,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme } from './context/ThemeContext';
+import { useAuth } from './context/AuthContext';
 
 const SignUpScreen = () => {
   const router = useRouter();
+  const { isDarkMode } = useTheme();
+  const { signIn } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,7 +35,7 @@ const SignUpScreen = () => {
   const [loading, setLoading] = useState(false);
 
   const handleSignUp = async () => {
-  
+
     // Check username
     const nameError = !name || name.length < 5
     if (nameError) {
@@ -55,7 +58,7 @@ const SignUpScreen = () => {
       setConfirmPasswordError('Passwords do not match')
     }
 
-    
+
     // Break out of the fucntion if there were any issues
     if (nameError ||
       emailError ||
@@ -68,7 +71,7 @@ const SignUpScreen = () => {
     // Simulate API call
     setTimeout(async () => {
       setLoading(false);
-      
+
       try {
         // Save user data
         const userData = {
@@ -76,10 +79,9 @@ const SignUpScreen = () => {
           email,
           createdAt: new Date().toISOString(),
         };
-        
-        await AsyncStorage.setItem('userToken', 'dummy_token');
-        await AsyncStorage.setItem('userData', JSON.stringify(userData));
-        
+
+        await signIn({ email, user: userData, token: 'dummy_token' });
+
         Alert.alert(
           'Success',
           'Account created successfully!',
@@ -93,7 +95,7 @@ const SignUpScreen = () => {
             }
           ]
         );
-      } catch (error) {
+      } catch {
         Alert.alert('Error', 'Failed to create account. Please try again.');
       }
     }, 2000);
@@ -101,45 +103,55 @@ const SignUpScreen = () => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#121212' : '#fff' }]}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.keyboardView}
         >
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={styles.header}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.backButton}
                 onPress={() => router.back()}
               >
-                <Text style={styles.backButtonText}>←</Text>
+                <Text style={[styles.backButtonText, { color: isDarkMode ? '#007AFF' : '#007AFF' }]}>←</Text>
               </TouchableOpacity>
-              <Text style={styles.title}>Create Account</Text>
-              <Text style={styles.subtitle}>Join our community today</Text>
+              <Text style={[styles.title, { color: isDarkMode ? '#ffffff' : '#333' }]}>Create Account</Text>
+              <Text style={[styles.subtitle, { color: isDarkMode ? '#aaaaaa' : '#666' }]}>Join our community today</Text>
             </View>
 
             <View style={styles.form}>
               <View style={styles.inputContainer}>
-                <Text style={styles.label}>Full Name</Text>
+                <Text style={[styles.label, { color: isDarkMode ? '#ffffff' : '#333' }]}>Full Name</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, {
+                    backgroundColor: isDarkMode ? '#1e1e1e' : '#f9f9f9',
+                    borderColor: isDarkMode ? '#333' : '#ddd',
+                    color: isDarkMode ? '#ffffff' : '#000',
+                  }]}
                   placeholder="Enter your full name"
+                  placeholderTextColor={isDarkMode ? '#666' : '#999'}
                   value={name}
                   onChangeText={setName}
                   autoCapitalize="words"
                 />
                 {nameError && <Text style={{
-                  color: nameError ? '#ff5555' : '#70747a',
+                  color: '#ff5555',
                   marginVertical: 6,
                   paddingLeft: 16
                 }}>{nameError}</Text>}
               </View>
 
               <View style={styles.inputContainer}>
-                <Text style={styles.label}>Email Address</Text>
+                <Text style={[styles.label, { color: isDarkMode ? '#ffffff' : '#333' }]}>Email Address</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, {
+                    backgroundColor: isDarkMode ? '#1e1e1e' : '#f9f9f9',
+                    borderColor: isDarkMode ? '#333' : '#ddd',
+                    color: isDarkMode ? '#ffffff' : '#000',
+                  }]}
                   placeholder="Enter your email"
+                  placeholderTextColor={isDarkMode ? '#666' : '#999'}
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
@@ -147,44 +159,54 @@ const SignUpScreen = () => {
                   autoComplete="email"
                 />
                 {emailError && <Text style={{
-                  color: emailError ? '#ff5555' : '#70747a',
+                  color: '#ff5555',
                   marginVertical: 6,
                   paddingLeft: 16
                 }}>{emailError}</Text>}
               </View>
 
               <View style={styles.inputContainer}>
-                <Text style={styles.label}>Password</Text>
+                <Text style={[styles.label, { color: isDarkMode ? '#ffffff' : '#333' }]}>Password</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, {
+                    backgroundColor: isDarkMode ? '#1e1e1e' : '#f9f9f9',
+                    borderColor: isDarkMode ? '#333' : '#ddd',
+                    color: isDarkMode ? '#ffffff' : '#000',
+                  }]}
                   placeholder="Create a password"
+                  placeholderTextColor={isDarkMode ? '#666' : '#999'}
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
                   autoCapitalize="none"
                 />
-                <Text style={styles.passwordHint}>
+                <Text style={[styles.passwordHint, { color: isDarkMode ? '#aaaaaa' : '#666' }]}>
                   Must be at least 6 characters
                 </Text>
                 {passwordError && <Text style={{
-                  color: passwordError ? '#ff5555' : '#70747a',
+                  color: '#ff5555',
                   marginVertical: 6,
                   paddingLeft: 16
                 }}>{passwordError}</Text>}
               </View>
 
               <View style={styles.inputContainer}>
-                <Text style={styles.label}>Confirm Password</Text>
+                <Text style={[styles.label, { color: isDarkMode ? '#ffffff' : '#333' }]}>Confirm Password</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, {
+                    backgroundColor: isDarkMode ? '#1e1e1e' : '#f9f9f9',
+                    borderColor: isDarkMode ? '#333' : '#ddd',
+                    color: isDarkMode ? '#ffffff' : '#000',
+                  }]}
                   placeholder="Confirm your password"
+                  placeholderTextColor={isDarkMode ? '#666' : '#999'}
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                   secureTextEntry
                   autoCapitalize="none"
                 />
                 {confirmPasswordError && <Text style={{
-                  color: confirmPasswordError ? '#ff5555' : '#70747a',
+                  color: '#ff5555',
                   marginVertical: 6,
                   paddingLeft: 16
                 }}>{confirmPasswordError}</Text>}
@@ -201,7 +223,7 @@ const SignUpScreen = () => {
               </TouchableOpacity>
 
               <View style={styles.termsContainer}>
-                <Text style={styles.termsText}>
+                <Text style={[styles.termsText, { color: isDarkMode ? '#aaaaaa' : '#666' }]}>
                   By creating an account, you agree to our{' '}
                   <Text style={styles.link}>Terms of Service</Text> and{' '}
                   <Text style={styles.link}>Privacy Policy</Text>
@@ -209,7 +231,7 @@ const SignUpScreen = () => {
               </View>
 
               <View style={styles.loginContainer}>
-                <Text style={styles.loginText}>Already have an account? </Text>
+                <Text style={[styles.loginText, { color: isDarkMode ? '#aaaaaa' : '#666' }]}>Already have an account? </Text>
                 <TouchableOpacity onPress={() => router.push('/login')}>
                   <Text style={styles.loginLink}>Sign In</Text>
                 </TouchableOpacity>
@@ -226,7 +248,6 @@ const SignUpScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   keyboardView: {
     flex: 1,
@@ -241,17 +262,14 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 24,
-    color: '#007AFF',
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#333',
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
   },
   form: {
     paddingHorizontal: 30,
@@ -262,22 +280,18 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: '#333',
     marginBottom: 8,
     fontWeight: '500',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
     borderRadius: 12,
     paddingHorizontal: 20,
     paddingVertical: 15,
     fontSize: 16,
-    backgroundColor: '#f9f9f9',
   },
   passwordHint: {
     fontSize: 12,
-    color: '#666',
     marginTop: 5,
     marginLeft: 5,
   },
@@ -302,7 +316,6 @@ const styles = StyleSheet.create({
   },
   termsText: {
     textAlign: 'center',
-    color: '#666',
     fontSize: 12,
     lineHeight: 18,
   },
@@ -316,7 +329,6 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   loginText: {
-    color: '#666',
     fontSize: 16,
   },
   loginLink: {

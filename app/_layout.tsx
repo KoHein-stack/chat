@@ -8,6 +8,7 @@ import { ActivityIndicator, View } from 'react-native';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 /* -------- THEMES -------- */
 const CustomDarkTheme: Theme = {
@@ -49,8 +50,8 @@ const CustomLightTheme: Theme = {
 
 function RootLayoutInner() {
   const { isDarkMode } = useTheme();
-  const [loading, setLoading] = useState(true);
-  const [initialRoute, setInitialRoute] = useState<string | null>(null);
+  const { isAuthLoading, isLoggedIn } = useAuth();
+  const [hasLaunched, setHasLaunched] = useState<boolean | null>(null);
 
   // useEffect(() => {
   //   const initApp = async () => {
@@ -77,30 +78,22 @@ function RootLayoutInner() {
   //   initApp();
   // }, []);
   useEffect(() => {
-    const initApp = async () => {
+    const loadLaunch = async () => {
       try {
-        const hasLaunched = await AsyncStorage.getItem('hasLaunched');
-        const isLoggedIn = await AsyncStorage.getItem('isLoggedIn');
-
-        if (!hasLaunched) {
-          setInitialRoute("getting-started");
-        } else if (isLoggedIn === 'true') {
-          setInitialRoute("(tabs)"); // load tabs
-        } else {
-          setInitialRoute("login"); // fallback
-        }
-      } catch (error) {
-        setInitialRoute("login");
-      } finally {
-        setLoading(false);
+        const v = await AsyncStorage.getItem('hasLaunched');
+        setHasLaunched(!!v);
+      } catch {
+        setHasLaunched(true);
       }
     };
 
-    initApp();
+    loadLaunch();
   }, []);
 
+  const initialRoute =
+    hasLaunched === false ? 'getting-started' : isLoggedIn ? '(tabs)' : 'login';
 
-  if (loading || !initialRoute) {
+  if (isAuthLoading || hasLaunched === null) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: isDarkMode ? '#121212' : '#fff' }}>
         <ActivityIndicator size="large" color="#007AFF" />
@@ -141,7 +134,9 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <RootLayoutInner />
+        <AuthProvider>
+          <RootLayoutInner />
+        </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );

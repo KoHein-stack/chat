@@ -2,21 +2,16 @@ import { Image } from 'expo-image';
 import { Platform, StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, Feather, MaterialIcons, FontAwesome } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { useAuth } from '../context/AuthContext';
 
 export default function Profile() {
-  // Mock user data
-  const user = {
-    name: 'Alex Johnson',
-    username: '@alexjohn',
-    bio: 'Digital artist 🎨 | Coffee enthusiast ☕ | Always up for deep conversations',
-    status: 'Online',
-    lastSeen: 'Just now',
-    phone: '+1 (555) 123-4567',
-    location: 'San Francisco, CA',
-    joinDate: 'Joined March 2023',
-    mediaCount: 245,
-    commonGroups: 3,
-  };
+  const router = useRouter();
+  const { user, isLoggedIn, signOut } = useAuth();
+
+  const displayName = user?.name ?? 'User';
+  const username = user?.email ? `@${user.email.split('@')[0]}` : '@user';
+  const joinDate = user?.createdAt ? `Joined ${new Date(user.createdAt).toLocaleDateString()}` : 'Joined recently';
 
   const handleCall = (type: any) => {
     console.log(`Initiating ${type} call...`);
@@ -28,12 +23,17 @@ export default function Profile() {
     // Implement action functionality
   };
 
+  const handleLogout = async () => {
+    await signOut();
+    router.replace('/login');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header with Back Button */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={28} color="#000" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Profile</Text>
@@ -56,28 +56,30 @@ export default function Profile() {
           {/* Status Badge */}
           <View style={styles.statusBadge}>
             <View style={[styles.statusDot, { backgroundColor: '#4CAF50' }]} />
-            <Text style={styles.statusText}>{user.status}</Text>
+            <Text style={styles.statusText}>{isLoggedIn ? 'Online' : 'Offline'}</Text>
           </View>
         </View>
 
         {/* User Info Section */}
         <View style={styles.infoSection}>
-          <Text style={styles.userName}>{user.name}</Text>
-          <Text style={styles.username}>{user.username}</Text>
-          <Text style={styles.bio}>{user.bio}</Text>
+          <Text style={styles.userName}>{displayName}</Text>
+          <Text style={styles.username}>{username}</Text>
+          <Text style={styles.bio}>
+            {user?.email ? `Signed in as ${user.email}` : 'Please sign in to continue.'}
+          </Text>
           
           <View style={styles.metaInfo}>
             <View style={styles.metaItem}>
               <Feather name="phone" size={16} color="#666" />
-              <Text style={styles.metaText}>{user.phone}</Text>
+              <Text style={styles.metaText}>Not set</Text>
             </View>
             <View style={styles.metaItem}>
               <Feather name="map-pin" size={16} color="#666" />
-              <Text style={styles.metaText}>{user.location}</Text>
+              <Text style={styles.metaText}>Not set</Text>
             </View>
             <View style={styles.metaItem}>
               <Feather name="calendar" size={16} color="#666" />
-              <Text style={styles.metaText}>{user.joinDate}</Text>
+              <Text style={styles.metaText}>{joinDate}</Text>
             </View>
           </View>
         </View>
@@ -85,12 +87,12 @@ export default function Profile() {
         {/* Stats Section */}
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{user.mediaCount}</Text>
+            <Text style={styles.statNumber}>0</Text>
             <Text style={styles.statLabel}>Media</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{user.commonGroups}</Text>
+            <Text style={styles.statNumber}>0</Text>
             <Text style={styles.statLabel}>Groups</Text>
           </View>
           <View style={styles.statDivider} />
@@ -98,6 +100,18 @@ export default function Profile() {
             <Text style={styles.statNumber}>24/7</Text>
             <Text style={styles.statLabel}>Chatting</Text>
           </View>
+        </View>
+
+        {/* Session */}
+        <View style={styles.optionsContainer}>
+          <Text style={styles.sectionTitle}>Session</Text>
+          <TouchableOpacity style={styles.optionItem} onPress={handleLogout}>
+            <View style={[styles.optionIcon, { backgroundColor: '#FF3B3015' }]}>
+              <MaterialIcons name="logout" size={22} color="#FF3B30" />
+            </View>
+            <Text style={styles.optionLabel}>Logout</Text>
+            <Feather name="chevron-right" size={20} color="#999" />
+          </TouchableOpacity>
         </View>
 
         {/* Quick Actions */}
