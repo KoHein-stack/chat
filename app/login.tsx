@@ -28,23 +28,23 @@ const LoginScreen = () => {
     }
 
     setLoading(true);
-    
+
     // Simulate API call
     setTimeout(async () => {
       setLoading(false);
-      
-      // For demo, just check if email contains @
+
+      // Demo validation
       if (email.includes('@')) {
         try {
-          // Save login state
           await AsyncStorage.setItem('userToken', 'dummy_token');
           await AsyncStorage.setItem('userEmail', email);
-          
+          await AsyncStorage.setItem('isLoggedIn', 'true');
+
           Alert.alert('Success', 'Logged in successfully!');
-          // Navigate to main app (tabs)
-          router.replace('/(tabs)');
+          router.replace('/(tabs)'); // Navigate to main app
         } catch (error) {
           Alert.alert('Error', 'Failed to save login data');
+          console.error(error);
         }
       } else {
         Alert.alert('Error', 'Please enter a valid email');
@@ -59,11 +59,13 @@ const LoginScreen = () => {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.keyboardView}
         >
+          {/* HEADER */}
           <View style={styles.header}>
             <Text style={styles.title}>Welcome Back</Text>
             <Text style={styles.subtitle}>Sign in to continue</Text>
           </View>
 
+          {/* FORM */}
           <View style={styles.form}>
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Email Address</Text>
@@ -117,6 +119,7 @@ const LoginScreen = () => {
             </TouchableOpacity>
           </View>
 
+          {/* FOOTER */}
           <View style={styles.footer}>
             <Text style={styles.footerText}>
               By signing in, you agree to our{' '}
@@ -129,6 +132,7 @@ const LoginScreen = () => {
     </TouchableWithoutFeedback>
   );
 };
+
 
 // Styles remain the same as previous example
 const styles = StyleSheet.create({

@@ -1,7 +1,17 @@
-import React, { useState } from 'react';
-import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
+import React, { useState, useRef } from 'react';
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    FlatList,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '../context/ThemeContext';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 interface Message {
     id: string;
@@ -9,158 +19,148 @@ interface Message {
     sender: 'me' | 'other';
 }
 
-const ChatScreen = () => {
-    const { isDarkMode } = useTheme();
+export default function ChatScreen() {
+    const [message, setMessage] = useState('');
     const [messages, setMessages] = useState<Message[]>([
-        { id: '1', text: 'Hello!', sender: 'other' },
-        { id: '2', text: 'Hi there!', sender: 'me' },
-        { id: '3', text: 'How are you?', sender: 'other' },
+        { id: '1', text: 'Hello ❤️', sender: 'other' },
+        { id: '2', text: 'Hi 😊', sender: 'me' },
     ]);
 
-    const [inputText, setInputText] = useState('');
+    const listRef = useRef<FlatList>(null);
 
     const sendMessage = () => {
-        if (inputText.trim() === '') return;
+        if (!message.trim()) return;
 
-        const newMessage: Message = {
-            id: Date.now().toString(),
-            text: inputText,
-            sender: 'me',
-        };
+        setMessages(prev => [
+            ...prev,
+            { id: Date.now().toString(), text: message, sender: 'me' },
+        ]);
+        setMessage('');
 
-        setMessages(prev => [...prev, newMessage]);
-        setInputText('');
+        setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100);
     };
 
- 
-const styles = StyleSheet.create({
-    messageContainer: {
-        maxWidth: '70%',
-        padding: 10,
-        borderRadius: 12,
-        marginVertical: 4,
-    },
-    myMessage: {
-        backgroundColor: isDarkMode ? '#0A84FF' : '#0078fe', // Slightly different blue for dark mode
-        alignSelf: 'flex-end',
-        borderTopRightRadius: 0,
-    },
-    otherMessage: {
-        backgroundColor: isDarkMode ? '#2C2C2E' : '#f0f0f0', // Dark mode: dark gray, Light mode: light gray
-        alignSelf: 'flex-start',
-        borderTopLeftRadius: 0,
-    },
-    myMessageText: {
-        color: '#FFFFFF', // Always white text on blue background
-    },
-    otherMessageText: {
-        color: isDarkMode ? '#FFFFFF' : '#000000', // White in dark mode, black in light mode
-    },
-    messageTime: {
-        fontSize: 11,
-        color: isDarkMode ? '#8E8E93' : '#666666',
-        marginTop: 4,
-        alignSelf: 'flex-end',
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        padding: 8,
-        borderTopWidth: 1,
-        borderTopColor: isDarkMode ? '#1C1C1E' : '#E5E5EA',
-        backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF',
-    },
-       input: {
-        flex: 1,
-        borderWidth: 1,
-        borderColor: isDarkMode ? '#3A3A3C' : '#C7C7CC',
-        borderRadius: 20,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        marginRight: 8,
-        color: isDarkMode ? '#FFFFFF' : '#000000',
-        backgroundColor: isDarkMode ? '#2C2C2E' : '#F2F2F7',
-    },
-    sendButton: {
-        backgroundColor: isDarkMode ? '#0A84FF' : '#0078fe',
-        borderRadius: 20,
-        paddingHorizontal: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    sendButtonDisabled: {
-        backgroundColor: isDarkMode ? '#3A3A3C' : '#C7C7CC',
-    },
-    sendButtonText: {
-        color: '#FFFFFF',
-        fontWeight: '600',
-    },
-});
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={styles.container}>
+            {/* Header */}
+            <View style={styles.header}>
+                <Text style={styles.headerTitle}>❤️ Chat</Text>
+            </View>
+
+            {/* ✅ KeyboardAvoidingView wraps chat area */}
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
+                {/* Messages */}
                 <FlatList
+                    ref={listRef}
                     data={messages}
                     keyExtractor={item => item.id}
+                    contentContainerStyle={styles.messages}
+                    style={{ flex: 1 }}                 // ✅ IMPORTANT
+                    keyboardShouldPersistTaps="handled" // ✅ IMPORTANT
+                    showsVerticalScrollIndicator={false}   // 👈 HIDE SCROLL BAR
+                    showsHorizontalScrollIndicator={false}
                     renderItem={({ item }) => (
                         <View
                             style={[
-                                styles.messageContainer,
-                                item.sender === 'me' ? styles.myMessage : styles.otherMessage,
+                                styles.bubble,
+                                item.sender === 'me' ? styles.myBubble : styles.otherBubble,
                             ]}
                         >
-                            <Text style={styles.myMessageText}>{item.text}</Text>
+                            <Text
+                                style={[
+                                    styles.text,
+                                    item.sender === 'me' && { color: 'white' },
+                                ]}
+                            >
+                                {item.text}
+                            </Text>
                         </View>
                     )}
-                    contentContainerStyle={{ padding: 12 }}
-                    inverted
                 />
 
-                <View style={styles.inputContainer}>
+                {/* Input */}
+                <View style={styles.inputRow}>
                     <TextInput
+                        value={message}
+                        onChangeText={setMessage}
+                        placeholder="Message"
                         style={styles.input}
-                        placeholder="Type a message"
-                        value={inputText}
-                        onChangeText={setInputText}
+                        multiline
+                        blurOnSubmit={false}   // ✅ prevent keyboard collapse
+                        onSubmitEditing={sendMessage} // optional
                     />
-                    <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-                        <Text style={{ color:  isDarkMode ? '#ffffff' : '#333333', fontWeight: 'bold' }}>Send</Text>
+                    <TouchableOpacity onPress={sendMessage} style={styles.sendBtn}>
+                        <Icon name="send" size={22} color="white" />
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
-};
-
-export default ChatScreen;
+}
 
 
-
-// app/(tabs)/(chat)/_layout.tsx
-
-
-
-// import { Link, useRouter } from 'expo-router';
-// import { View, Text, Pressable } from 'react-native';
-
-// export default function ChatList() {
-//   const router = useRouter();
-
-//   return (
-//     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-//       <Text>Chat List Screen</Text>
-      
-//       {/* Method 1: Using Link */}
-//       {/* <Link href="/(tabs)/(chat)/room123" asChild>
-//         <Pressable><Text>Go to Chat with John</Text></Pressable>
-//       </Link> */}
-
-//       {/* Method 2: Using the router hook */}
-//       <Pressable onPress={() => alert("hello chat")}>
-//         <Text>Go to Chat with Sarah</Text>
-//       </Pressable>
-//     </View>
-//   );
-// }
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#F2F2F7',
+    },
+    header: {
+        padding: 16,
+        backgroundColor: '#F2F2F7',
+        borderBottomWidth: 1,
+        borderColor: '#F2F2F7',
+        alignItems: 'center',
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+    },
+    messages: {
+        padding: 16,
+    },
+    bubble: {
+        padding: 12,
+        borderRadius: 16,
+        marginBottom: 10,
+        maxWidth: '75%',
+    },
+    myBubble: {
+        backgroundColor: '#007AFF',
+        alignSelf: 'flex-end',
+    },
+    otherBubble: {
+        backgroundColor: 'white',
+        alignSelf: 'flex-start',
+    },
+    text: {
+        fontSize: 16,
+        color: '#000',
+    },
+    inputRow: {
+        flexDirection: 'row',
+        padding: 10,
+        backgroundColor: 'white',
+        borderTopWidth: 1,
+        borderColor: '#e5e5ea',
+    },
+    input: {
+        flex: 1,
+        backgroundColor: '#f2f2f7',
+        borderRadius: 20,
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        fontSize: 16,
+    },
+    sendBtn: {
+        backgroundColor: '#007AFF',
+        marginLeft: 8,
+        width: 42,
+        height: 42,
+        borderRadius: 21,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+});

@@ -237,6 +237,7 @@ export default function Settings() {
             try {
               await AsyncStorage.removeItem('userToken');
               await AsyncStorage.removeItem('userData');
+              await AsyncStorage.removeItem('email');
               router.replace('/login');
             } catch (error) {
               console.error('Error logging out:', error);

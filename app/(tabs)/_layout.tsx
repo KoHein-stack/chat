@@ -96,11 +96,9 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="(chat)"
+        name="chat"
         options={{
           title: 'Chat',
-          // This hides the bottom tab bar specifically for this screen
-          tabBarStyle: { display: 'none' },
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="chatbox-ellipses" size={size} color={color} />
           ),

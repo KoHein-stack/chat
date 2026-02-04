@@ -1,19 +1,17 @@
 // // app/(tabs)/(chat)/_layout.tsx
 import { Stack } from 'expo-router';
 
-export default function ChatStack() {
+export default function ChatLayout() {
   return (
-    <Stack
-     initialRouteName='index'
-        screenOptions={{
-          headerShown: true,
+    <Stack>
+      <Stack.Screen
+        name="index"
+        options={{
+          // headerTitle: '❤️ Chat',
+          headerShown: false,
+          headerBackVisible: false,
         }}
-    >
-      {/* The main chat list */}
-      <Stack.Screen name="index" options={{ title: 'My Chats' }} />
-      
-      {/* The screen that slides in over the list */}
-      {/* <Stack.Screen name="[id]" options={{ title: 'Chat Room' }} /> */}
+      />
     </Stack>
   );
 }

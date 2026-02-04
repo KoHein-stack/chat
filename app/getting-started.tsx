@@ -42,7 +42,7 @@ const GettingStartedScreen = () => {
                     </Text>
                     <Text style={[styles.subtitle, { color: colors.text }]}>
                         Discover amazing features and connect with people around the world.
-                        Let's get started on this exciting journey!
+                        Lets get started on this exciting journey!
                     </Text>
                 </View>
 
