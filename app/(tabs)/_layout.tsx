@@ -99,6 +99,7 @@ export default function TabLayout() {
         name="chat"
         options={{
           title: 'Chat',
+
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="chatbox-ellipses" size={size} color={color} />
           ),

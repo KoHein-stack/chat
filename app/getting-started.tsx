@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useTheme } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import {
@@ -10,10 +9,11 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from './context/ThemeContext';
 
 const GettingStartedScreen = () => {
     const router = useRouter();
-    const { colors } = useTheme();
+    const { isDarkMode } = useTheme();
 
     const handleGetStarted = async () => {
         try {
@@ -26,7 +26,7 @@ const GettingStartedScreen = () => {
     };
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#121212' : '#fff' }]}>
             <View style={styles.content}>
                 <View style={styles.imageContainer}>
                     <Image
@@ -37,10 +37,10 @@ const GettingStartedScreen = () => {
                 </View>
 
                 <View style={styles.textContainer}>
-                    <Text style={[styles.title, { color: colors.text }]}>
+                    <Text style={[styles.title, { color: isDarkMode ? '#ffffff' : '#333' }]}>
                         Welcome to Our App!
                     </Text>
-                    <Text style={[styles.subtitle, { color: colors.text }]}>
+                    <Text style={[styles.subtitle, { color: isDarkMode ? '#aaaaaa' : '#666' }]}>
                         Discover amazing features and connect with people around the world.
                         Lets get started on this exciting journey!
                     </Text>
@@ -51,14 +51,14 @@ const GettingStartedScreen = () => {
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.skipButton} onPress={handleGetStarted}>
-                    <Text style={styles.skipText}>Skip for now</Text>
+                    <Text style={[styles.skipText, { color: isDarkMode ? '#aaaaaa' : '#888' }]}>Skip for now</Text>
                 </TouchableOpacity>
             </View>
 
             <View style={styles.indicatorContainer}>
-                <View style={[styles.indicator, styles.activeIndicator]} />
-                <View style={styles.indicator} />
-                <View style={styles.indicator} />
+                <View style={[styles.indicator, styles.activeIndicator, { backgroundColor: isDarkMode ? '#007AFF' : '#007AFF' }]} />
+                <View style={[styles.indicator, { backgroundColor: isDarkMode ? '#333333' : '#ddd' }]} />
+                <View style={[styles.indicator, { backgroundColor: isDarkMode ? '#333333' : '#ddd' }]} />
             </View>
         </SafeAreaView>
     );
@@ -69,7 +69,6 @@ export default GettingStartedScreen;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
     },
     content: {
         flex: 1,
@@ -91,13 +90,11 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 28,
         fontWeight: 'bold',
-        color: '#333',
         marginBottom: 15,
         textAlign: 'center',
     },
     subtitle: {
         fontSize: 16,
-        color: '#666',
         textAlign: 'center',
         lineHeight: 24,
     },
@@ -124,7 +121,6 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
     },
     skipText: {
-        color: '#888',
         fontSize: 16,
     },
     indicatorContainer: {
@@ -136,11 +132,9 @@ const styles = StyleSheet.create({
         width: 10,
         height: 10,
         borderRadius: 5,
-        backgroundColor: '#ddd',
         marginHorizontal: 5,
     },
     activeIndicator: {
-        backgroundColor: '#007AFF',
         width: 30,
     },
 });

@@ -22,30 +22,47 @@ const SignUpScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+
+  const [nameError, setNameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
+
   const [loading, setLoading] = useState(false);
 
   const handleSignUp = async () => {
-    // Validation
-    if (!name || !email || !password || !confirmPassword) {
-      Alert.alert('Error', 'Please fill in all fields');
-      return;
+  
+    // Check username
+    const nameError = !name || name.length < 5
+    if (nameError) {
+      setNameError('Name must be >= 5 characters')
     }
 
-    if (!email.includes('@')) {
-      Alert.alert('Error', 'Please enter a valid email');
-      return;
+    // Check email
+    const emailError = !email || !email.includes('@')
+    if (emailError) {
+      setEmailError('Please enter a valid email')
+    }
+    // Check password
+    const passwordError = !password || password.length < 8
+    if (passwordError) {
+      setPasswordError('Password is too short')
+    }
+    // Check confirm password
+    const confirmPasswordError = confirmPassword !== password
+    if (confirmPasswordError) {
+      setConfirmPasswordError('Passwords do not match')
     }
 
-    if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
-      return;
+    
+    // Break out of the fucntion if there were any issues
+    if (nameError ||
+      emailError ||
+      passwordError ||
+      confirmPasswordError) {
+      return
     }
-
-    if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
-      return;
-    }
-
     setLoading(true);
 
     // Simulate API call
@@ -111,6 +128,11 @@ const SignUpScreen = () => {
                   onChangeText={setName}
                   autoCapitalize="words"
                 />
+                {nameError && <Text style={{
+                  color: nameError ? '#ff5555' : '#70747a',
+                  marginVertical: 6,
+                  paddingLeft: 16
+                }}>{nameError}</Text>}
               </View>
 
               <View style={styles.inputContainer}>
@@ -124,6 +146,11 @@ const SignUpScreen = () => {
                   autoCapitalize="none"
                   autoComplete="email"
                 />
+                {emailError && <Text style={{
+                  color: emailError ? '#ff5555' : '#70747a',
+                  marginVertical: 6,
+                  paddingLeft: 16
+                }}>{emailError}</Text>}
               </View>
 
               <View style={styles.inputContainer}>
@@ -139,6 +166,11 @@ const SignUpScreen = () => {
                 <Text style={styles.passwordHint}>
                   Must be at least 6 characters
                 </Text>
+                {passwordError && <Text style={{
+                  color: passwordError ? '#ff5555' : '#70747a',
+                  marginVertical: 6,
+                  paddingLeft: 16
+                }}>{passwordError}</Text>}
               </View>
 
               <View style={styles.inputContainer}>
@@ -151,6 +183,11 @@ const SignUpScreen = () => {
                   secureTextEntry
                   autoCapitalize="none"
                 />
+                {confirmPasswordError && <Text style={{
+                  color: confirmPasswordError ? '#ff5555' : '#70747a',
+                  marginVertical: 6,
+                  paddingLeft: 16
+                }}>{confirmPasswordError}</Text>}
               </View>
 
               <TouchableOpacity

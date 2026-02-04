@@ -75,6 +75,7 @@
 //   );
 // }
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -88,6 +89,7 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Href, useRouter } from 'expo-router';
 
 const { width, height } = Dimensions.get('window');
 
@@ -107,6 +109,7 @@ interface LoveInfo {
 }
 
 const LoveCountdownScreen: React.FC = () => {
+  const router = useRouter();
   const [loveInfo, setLoveInfo] = useState<LoveInfo>({
     girl: {
       name: 'Emma',
@@ -151,8 +154,16 @@ const LoveCountdownScreen: React.FC = () => {
     };
   }, []);
 
-  const handleLogout = (): void => {
-    console.log('Logout pressed');
+  const handleLogout = async (): Promise<void> => {
+    try {
+      await AsyncStorage.removeItem('userToken');
+      await AsyncStorage.removeItem('userEmail');
+      await AsyncStorage.removeItem('userData');
+      await AsyncStorage.removeItem('hasLaunched');
+      router.replace('/login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
   };
 
   const formatDate = (dateString: string): string => {
@@ -384,7 +395,7 @@ const LoveCountdownScreen: React.FC = () => {
 
         {/* Footer with Logout Button */}
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <TouchableOpacity style={styles.logoutButton} onPress={() => handleLogout()}>
             <Text style={styles.logoutText}>🚪 Logout</Text>
           </TouchableOpacity>
 

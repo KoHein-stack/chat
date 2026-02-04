@@ -14,17 +14,36 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Href, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme } from './context/ThemeContext';
 
 const LoginScreen = () => {
   const router = useRouter();
+  const { isDarkMode } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
-      return;
+
+  
+    // Check email
+    const emailError = !email || !email.includes('@')
+    if (emailError) {
+      setEmailError('Please enter a valid email')
+    }
+
+    // Check password
+    const passwordError = !password || password.length < 8
+    if (passwordError) {
+      setPasswordError('Password is too short')
+    }
+
+    // Break out of the fucntion if there were any issues
+    if (emailError || passwordError) {
+      return
     }
 
     setLoading(true);
@@ -54,37 +73,52 @@ const LoginScreen = () => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#121212' : '#fff' }]}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.keyboardView}
         >
           {/* HEADER */}
           <View style={styles.header}>
-            <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Sign in to continue</Text>
+            <Text style={[styles.title, { color: isDarkMode ? '#ffffff' : '#333' }]}>Welcome Back</Text>
+            <Text style={[styles.subtitle, { color: isDarkMode ? '#aaaaaa' : '#666' }]}>Sign in to continue</Text>
           </View>
 
           {/* FORM */}
           <View style={styles.form}>
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Email Address</Text>
+              <Text style={[styles.label, { color: isDarkMode ? '#ffffff' : '#333' }]}>Email Address</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, {
+                  backgroundColor: isDarkMode ? '#1e1e1e' : '#f9f9f9',
+                  borderColor: isDarkMode ? '#333' : '#ddd',
+                  color: isDarkMode ? '#ffffff' : '#000',
+                }]}
                 placeholder="Enter your email"
+                placeholderTextColor={isDarkMode ? '#666' : '#999'}
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
               />
+              {emailError && <Text style={{
+                color: '#ff5555',
+                marginVertical: 6,
+                paddingLeft: 16
+              }}>{emailError}</Text>}
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Password</Text>
+              <Text style={[styles.label, { color: isDarkMode ? '#ffffff' : '#333' }]}>Password</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, {
+                  backgroundColor: isDarkMode ? '#1e1e1e' : '#f9f9f9',
+                  borderColor: isDarkMode ? '#333' : '#ddd',
+                  color: isDarkMode ? '#ffffff' : '#000',
+                }]}
                 placeholder="Enter your password"
+                placeholderTextColor={isDarkMode ? '#666' : '#999'}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
@@ -93,6 +127,11 @@ const LoginScreen = () => {
               <TouchableOpacity style={styles.forgotPassword}>
                 <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
               </TouchableOpacity>
+              {passwordError && <Text style={{
+                color: '#ff5555',
+                marginVertical: 6,
+                paddingLeft: 16
+              }}>{passwordError}</Text>}
             </View>
 
             <TouchableOpacity
